@@ -108,6 +108,7 @@ namespace MelonLoader.Il2CppAssemblyGenerator
                 if (info.URL.Contains("phasmophobia"))
                 {
                     returnInfo.ForceDumperVersion = "2022.0.0";
+                    returnInfo.ObfuscationRegex = "^[\u0900-\u097F]{11}$";
                 }
 
                 if (returnInfo.ForceDumperVersion != null && SemVersion.Parse(returnInfo.ForceDumperVersion) <= SemVersion.Parse("2022.0.2"))
