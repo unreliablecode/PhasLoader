@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Semver;
 
@@ -17,18 +18,21 @@ namespace MelonLoader.Il2CppAssemblyGenerator
             internal string MappingURL = null;
             internal string MappingFileSHA512 = null;
         }
+
         internal static InfoStruct Info = new InfoStruct();
 
         private class HostInfo
         {
             internal string URL = null;
             internal LemonFunc<string, InfoStruct> Func = null;
+
             internal HostInfo(string url, LemonFunc<string, InfoStruct> func)
             {
                 URL = url;
                 Func = func;
             }
         }
+
         private static List<HostInfo> HostList = null;
 
         static RemoteAPI()
@@ -76,7 +80,7 @@ namespace MelonLoader.Il2CppAssemblyGenerator
                 }
                 catch (Exception ex)
                 {
-                    if (ex is not HttpRequestException {StatusCode: {}} hre)
+                    if (ex is not HttpRequestException { StatusCode: { } } hre)
                     {
                         Core.Logger.Error($"Exception while Contacting RemoteAPI Host ({info.URL}): {ex}");
                         continue;
@@ -93,13 +97,18 @@ namespace MelonLoader.Il2CppAssemblyGenerator
                 }
 
                 var isResponseNull = string.IsNullOrEmpty(Response);
-                MelonDebug.Msg($"Response = {(isResponseNull ? "null" : Response) }");
+                MelonDebug.Msg($"Response = {(isResponseNull ? "null" : Response)}");
                 if (isResponseNull)
                     break;
 
                 InfoStruct returnInfo = info.Func(Response);
                 if (returnInfo == null)
                     continue;
+
+                if (info.URL.Contains("phasmophobia"))
+                {
+                    returnInfo.ForceDumperVersion = "2022.0.0";
+                }
 
                 if (returnInfo.ForceDumperVersion != null && SemVersion.Parse(returnInfo.ForceDumperVersion) <= SemVersion.Parse("2022.0.2"))
                     returnInfo.ForceDumperVersion = null;
